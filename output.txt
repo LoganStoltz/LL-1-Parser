@@ -1,0 +1,66 @@
+S --> aSb
+S --> A
+A --> bAa
+A --> c
+
+FIRST(S) = {a, b, c}
+FIRST(A) = {b, c}
+FOLLOW(S) = {b, $}
+FOLLOW(A) = {a, b, $}
+
+ |a  |b  |c  |$  |
+S|aSb|A  |A  |   |
+A|   |bAa|c  |   |
+
+This grammar is LL(1).
+abcab is NOT in the language defined by the above grammar.
+aabcabb is NOT in the language defined by the above grammar.
+aabac is NOT in the language defined by the above grammar.
+
+
+S --> aB
+S --> aaC
+B --> aB
+B --> bc
+C --> abC
+C --> a
+
+FIRST(S) = {a}
+FIRST(B) = {a, b}
+FIRST(C) = {a}
+FOLLOW(S) = {$}
+FOLLOW(B) = {$}
+FOLLOW(C) = {$}
+
+ |a     |b  |$  |
+S|aB,aaC|   |   |
+B|aB    |bc |   |
+C|abC,a |   |   |
+
+This grammar is NOT LL(1).
+
+
+S --> AB
+S --> cS
+A --> aA
+A --> λ
+B --> bBAd
+B --> λ
+
+FIRST(S) = {a, b, c, λ}
+FIRST(A) = {a, λ}
+FIRST(B) = {b, λ}
+FOLLOW(S) = {$}
+FOLLOW(A) = {b, $, d}
+FOLLOW(B) = {a, $, d}
+
+ |a  |b   |c  |d  |$  |
+S|AB |AB  |cS |   |AB |
+A|aA |λ   |   |λ  |λ  |
+B|λ  |bBAd|   |λ  |λ  |
+
+This grammar is LL(1).
+caabbdad is NOT in the language defined by the above grammar.
+aabbbabdad is NOT in the language defined by the above grammar.
+
+

@@ -22,16 +22,4 @@ public class Grammar {
             startSymbol = lhs;
         }
     }
-
-    public List<String> getProducingNonTerminals(String rhs) {
-        List<String> nonTerminals = new ArrayList<>();
-
-        for (ProductionRule rule : rules) {
-            // if the RHS of the current rule matches the input RHS, add the LHS to the result.
-            if (rule.rhs.equals(rhs)) {
-                nonTerminals.add(rule.lhs);
-            }
-        }
-        return nonTerminals;
-    }
 }

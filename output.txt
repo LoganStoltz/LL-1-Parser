@@ -13,8 +13,8 @@ S|aSb|A  |A  |   |
 A|   |bAa|c  |   |
 
 This grammar is LL(1).
-abcab is NOT in the language defined by the above grammar.
-aabcabb is NOT in the language defined by the above grammar.
+abcab is in the language defined by the above grammar.
+aabcabb is in the language defined by the above grammar.
 aabac is NOT in the language defined by the above grammar.
 
 
@@ -60,7 +60,7 @@ A|aA |λ   |   |λ  |λ  |
 B|λ  |bBAd|   |λ  |λ  |
 
 This grammar is LL(1).
-caabbdad is NOT in the language defined by the above grammar.
+caabbdad is in the language defined by the above grammar.
 aabbbabdad is NOT in the language defined by the above grammar.
 
 

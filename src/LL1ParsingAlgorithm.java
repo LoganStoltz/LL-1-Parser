@@ -1,15 +1,7 @@
+/** Created by Logan J. Stoltz for CSCD 420 - Compilers and Automata, 12/7/2024 **/
 import java.util.*;
 
 public class LL1ParsingAlgorithm {
-
-    // Parse a query string using LL(1) algorithm
-    public static boolean parse(String query, Grammar grammar) {
-        Map<String, Set<String>> firstSets = calculateFirstSets(grammar);
-        Map<String, Set<String>> followSets = calculateFollowSets(grammar, firstSets);
-        Map<String, Map<String, String>> parsingTable = buildParsingTable(grammar, firstSets, followSets);
-
-        return processQuery(query, grammar.startSymbol, parsingTable);
-    }
 
     // Step 1: Calculate FIRST sets
     public static Map<String, Set<String>> calculateFirstSets(Grammar grammar) {
@@ -58,7 +50,7 @@ public class LL1ParsingAlgorithm {
             }
         }
 
-        // If rhs is nullable, add "ε" to the FIRST set
+        // If rhs is nullable, add "λ" to the FIRST set
         if (isNullable) {
             result.add("λ");
         }
@@ -97,7 +89,7 @@ public class LL1ParsingAlgorithm {
                             changed = true;
                         }
 
-                        // If the non-terminal can produce ε, add FIRST set of the non-terminal to trailer
+                        // If the non-terminal can produce λ, add FIRST set of the non-terminal to trailer
                         if (firstSets.get(nonTerminal).contains("λ")) {
                             trailer.addAll(firstSets.get(nonTerminal));
                             trailer.remove("λ");
@@ -132,6 +124,7 @@ public class LL1ParsingAlgorithm {
         }
         terminals.add("$"); // Include the $ terminal
 
+
         for (ProductionRule rule : grammar.rules) {
             String lhs = rule.lhs;
             String rhs = rule.rhs;
@@ -145,7 +138,6 @@ public class LL1ParsingAlgorithm {
                         conflictMessages.add("Conflict at (" + lhs + ", " + terminal + "): Multiple productions." + rule);
                         String existingString = row.get(terminal);
                         String modifiedString = existingString + "," + rhs;
-
                         // Update the value in the HashMap
                         row.put(terminal, modifiedString);
                     }
@@ -153,7 +145,7 @@ public class LL1ParsingAlgorithm {
 
             }
 
-            // Process ε (nullable) case, and use FOLLOW sets
+            // Process λ case, and use FOLLOW sets
             if (firstSet.contains("λ")) {
                 for (String follow : followSets.get(lhs)) {
                     Map<String, String> row = table.computeIfAbsent(lhs, k -> new HashMap<>());
@@ -165,10 +157,10 @@ public class LL1ParsingAlgorithm {
 
         }
 
-        // Report any conflicts found
+        // Report any conflicts found (for debugging purposes)
         if (!conflictMessages.isEmpty()) {
             for (String conflict : conflictMessages) {
-                System.out.println(conflict);  // Print the conflict message
+                System.out.println(conflict);
             }
         }
 
@@ -179,34 +171,51 @@ public class LL1ParsingAlgorithm {
     // Step 4: Process query string using the LL(1) parsing table
     public static boolean processQuery(String query, String startSymbol, Map<String, Map<String, String>> parsingTable) {
         Stack<String> stack = new Stack<>();
-        stack.push("$");
-        stack.push(startSymbol);
+        stack.push("$");  // End marker
+        stack.push(startSymbol);  // Start symbol
 
+        query += "$";  // End-of-string marker
         int index = 0;
-        while (!stack.isEmpty()) {
-            String top = stack.pop();
 
-            if (index < query.length() && top.equals(String.valueOf(query.charAt(index)))) {
-                index++;  // Match terminal
-            } else if (parsingTable.containsKey(top)) {
+        while (!stack.isEmpty()) {
+            String top = stack.pop();  // Get top of stack
+
+            if (top.equals("$")) {
+                return true;  // Success if query is fully consumed
+            }
+
+            // Terminal match check
+            if (Character.isLowerCase(top.charAt(0))) {
+                if (index < query.length() && top.equals(String.valueOf(query.charAt(index)))) {
+                    index++;  // Consume input symbol
+                } else {
+                    System.out.println("Error: Expected '" + top + "' but found '" +
+                            (index < query.length() ? query.charAt(index) : "$") + "'.");
+                    return false;  // Parsing failed
+                }
+            }
+            // Non-terminal processing
+            else if (parsingTable.containsKey(top)) {
                 String nextInput = index < query.length() ? String.valueOf(query.charAt(index)) : "$";
-                String production = parsingTable.getOrDefault(top, new HashMap<>()).get(nextInput);
+                String production = parsingTable.get(top).get(nextInput);
 
                 if (production == null) {
-                    return false; // No matching production in the table
+                    System.out.println("Error: No rule for " + top + " with input '" + nextInput + "'.");
+                    return false;  // Parsing failed
                 }
 
-                // Push RHS of production onto stack (reversed)
-                for (int i = production.length() - 1; i >= 0; i--) {
-                    if (production.charAt(i) != 'λ') {
+                // Expand the production (skip λ)
+                if (!production.equals("λ")) {
+                    for (int i = production.length() - 1; i >= 0; i--) {
                         stack.push(String.valueOf(production.charAt(i)));
                     }
                 }
             } else {
-                return false; // Error: mismatch or missing rule
+                System.out.println("Error: Invalid symbol '" + top + "' in stack.");
+                return false;  // Unexpected symbol
             }
         }
 
-        return index == query.length(); // Query matches if we've consumed all input
+        return index == query.length();  // Ensure complete query consumption
     }
 }

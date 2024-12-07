@@ -1,4 +1,4 @@
-/** Created by Logan J. Stoltz for CSCD 420 - Compilers and Automata, 12/5/2024 **/
+/** Created by Logan J. Stoltz for CSCD 420 - Compilers and Automata, 12/7/2024 **/
 import java.io.*;
 import java.util.*;
 
@@ -48,7 +48,7 @@ public class OutputGenerator {
             writer.newLine(); // Blank line after parsing table.
 
             // Check if grammar is LL(1)
-            if (!isLL1Grammar(parsingTable)) {
+            if (isLL1Grammar(parsingTable)) {
                 writer.write("This grammar is LL(1).");
                 writer.newLine();
 
@@ -150,10 +150,10 @@ public class OutputGenerator {
     // Check if the grammar is LL(1)
     private static boolean isLL1Grammar(Map<String, Map<String, String>> parsingTable) {
         for (Map<String, String> row : parsingTable.values()) {
-            Set<String> seen = new HashSet<>();
-            for (String production : row.values()) {
-                if (production != null && !seen.add(production)) {
-                    return false; // Conflict in the table
+            for (String terminal : row.keySet()) {
+                String production = row.get(terminal);
+                if (production != null && production.contains(",")) {
+                    return false; // Conflict detected due to multiple productions
                 }
             }
         }

@@ -14,6 +14,8 @@ Input: a text file called "input.txt" located in the project's base directory (u
 - (Continue this progression until end-of-file)
 - Example input.txt is in the repo.
 
+The Program will produce and output.txt as the solution
+
 This program assumes that:
 - All nonterminals will be a single uppercase letter
 - All terminals will be a single lowercase letter
